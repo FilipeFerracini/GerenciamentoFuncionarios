@@ -49,4 +49,5 @@ public abstract class Funcionario implements Comparable{
         return getNome().compareTo(func.getNome());
 
     }
+
 }

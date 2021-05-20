@@ -25,11 +25,18 @@ public class Rh {
         return funcionarios.get(func.getCpfCnpj());
     }
 
-    /*public void pagarFuncionario(){
-
+    public void pagarFuncionario(){
+        funcionarios.forEach((k,v) -> {
+            if(v instanceof FuncionarioClt) {
+                System.out.println(v.getNome() + "\nSalário Bruto: " + String.format("%.2f",((FuncionarioClt) v).getSalarioBruto())
+                                               + "\nSalário Semanal: " + String.format("%.2f", v.salarioSemanal()));
+                return;
+            }
+            System.out.println(v.getNome() + "\nSalário Semanal: " + v.salarioSemanal());
+        });
     }
 
-    public List<Funcionario> escalaGeral(){
+    /*public List<Funcionario> escalaGeral(){
 
     }
 
