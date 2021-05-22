@@ -19,6 +19,11 @@ public class FuncionarioPj extends Funcionario implements Comparable{
         return salario;
     }
 
+    @Override
+    public String toString() {
+        return getNome() + " - Tipo de Contrato: PJ";
+    }
+
     /*@Override
     public int compareTo(Funcionario func) {
         return Comparator.comparing(Funcionario::getCpfCnpj)

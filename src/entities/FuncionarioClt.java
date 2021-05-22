@@ -21,6 +21,11 @@ public class FuncionarioClt extends Funcionario implements Comparable {
         return salarioBruto * (1 - fgts + inss);
     }
 
+    @Override
+    public String toString() {
+        return getNome() + " - Tipo de Contrato: CLT";
+    }
+
     /*@Override
     public int compareTo(Funcionario func) {
         return Comparator.comparing(Funcionario::getCpfCnpj)
