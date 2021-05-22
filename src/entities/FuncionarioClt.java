@@ -18,7 +18,7 @@ public class FuncionarioClt extends Funcionario implements Comparable {
 
     @Override
     public double salarioSemanal() {
-        return salarioBruto * (1 - fgts + inss);
+        return salarioBruto * (1 - (fgts + inss));
     }
 
     @Override

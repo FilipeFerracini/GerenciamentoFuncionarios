@@ -30,9 +30,11 @@ public class Rh {
             if(v instanceof FuncionarioClt) {
                 System.out.println(v.getNome() + "\nSalário Bruto: " + String.format("%.2f",((FuncionarioClt) v).getSalarioBruto())
                                                + "\nSalário Semanal: " + String.format("%.2f", v.salarioSemanal()));
+                System.out.println();
                 return;
             }
             System.out.println(v.getNome() + "\nSalário Semanal: " + v.salarioSemanal());
+            System.out.println();
             if(v instanceof FuncionarioDiarista)
                 ((FuncionarioDiarista) v).setDiasTrabalhados(0);
         });
@@ -52,13 +54,16 @@ public class Rh {
             boolean facultativo = false;
             String situacao;
             c.add(Calendar.DATE, -1);
+            Calendar nascimento = Calendar.getInstance();
+            nascimento.setTime(v.getDataNascimento());
 
             System.out.println(v);
 
             for(int i = 0; i < 7; i++){
                 c.add(Calendar.DATE, 1);
                 String dia = formatter.format(c.getTime()).toUpperCase();
-                boolean diaAniversario = c.getTime().compareTo(v.getDataNascimento()) == 0;
+                boolean diaAniversario = c.get(Calendar.DAY_OF_MONTH) == nascimento.get(Calendar.DAY_OF_MONTH)
+                        || c.get(Calendar.MONTH) == nascimento.get(Calendar.MONTH);
                 feriado = feriados.containsKey(c.getTime());
                 if(feriado) facultativo = feriados.get(c.getTime()).equals("Facultativo");
 
@@ -68,6 +73,7 @@ public class Rh {
                         if(clt || pj || diaAniversario) {
                             situacao = "FOLGA";
                             System.out.println(dia + ": " + situacao);
+
                             if(diarista)
                                 ((FuncionarioDiarista) v).diaria();
                             break;

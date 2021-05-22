@@ -2,6 +2,8 @@ package entities;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class Funcionario implements Comparable{
 
@@ -9,6 +11,15 @@ public abstract class Funcionario implements Comparable{
     private String nome;
     private Date dataNascimento;
     private String endereco;
+    private Map<String, String> escala = new LinkedHashMap<>() {{
+        put("DOMINGO", null);
+        put("SEGUNDA-FEIRA", null);
+        put("TERÇA-FEIRA", null);
+        put("QUARTA-FEIRA", null);
+        put("QUINTA-FEIRA", null);
+        put("SEXTA-FEIRA", null);
+        put("SÁBADO", null);
+    }};
 
     public Funcionario(String cpfCnpj, String nome, Date dataNascimento, String endereco) {
         this.cpfCnpj = cpfCnpj;
