@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class Program {
 
-    public static void main(String[] args) throws ParseException, IOException, InterruptedException {
+    public static void main(String[] args) throws ParseException, IOException, InterruptedException, ClassNotFoundException {
         SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
         Funcionario f1 = new FuncionarioClt("05258539252", "Gustavo", sdf1.parse("17/06/1994"), "Rua longedemais");
         Funcionario f2 = new FuncionarioDiarista("05258539254","Danilo", sdf1.parse("08/02/1999"), "Rua longedemais");
@@ -26,6 +26,11 @@ public class Program {
         rh.addFunc(f5);
         Calendario calendario = new Calendario("CAMPO_GRANDE", "MS", "2021");
         rh.gerarEscala(sdf1.parse("13/06/2021"), calendario.getFeriados());
+        rh.imprimirEscala();
+        rh.imprimirEscalaTipo("class entities.FuncionarioClt"); // No programa do usuário isso tem que ser mantido para funcionar, alternado apenas o nome final da classe
+        rh.imprimirEscalaFunc("13258149000118");
+        rh.relatorioTotal('c');
+        rh.relatorioTotal('d');
         rh.pagarFuncionario();
     }
 }

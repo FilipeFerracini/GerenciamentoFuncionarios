@@ -1,11 +1,14 @@
 package entities;
 
+import utils.ComparadorNome;
+import utils.ComparadorSalario;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Rh {
-    Map<String, Funcionario> funcionarios = new HashMap<>();
+    private Map<String, Funcionario> funcionarios = new HashMap<>();
 
     public boolean addFunc(Funcionario func){
         if(funcionarios.containsKey(func.getCpfCnpj()))
@@ -26,107 +29,214 @@ public class Rh {
     }
 
     public void pagarFuncionario(){
-        funcionarios.forEach((k,v) -> {
-            if(v instanceof FuncionarioClt) {
-                System.out.println(v.getNome() + "\nSalário Bruto: " + String.format("%.2f",((FuncionarioClt) v).getSalarioBruto())
-                                               + "\nSalário Semanal: " + String.format("%.2f", v.salarioSemanal()));
-                return;
+        List<Funcionario> listFunc = ordenarFuncionarios();
+
+        for (Funcionario func : listFunc) {
+            if(func instanceof FuncionarioClt) {
+                System.out.println(func.getNome() + "\nSalário Bruto: " + String.format("%.2f",((FuncionarioClt) func).getSalarioBruto())
+                                               + "\nSalário Semanal: " + String.format("%.2f", func.salarioSemanal()));
+                System.out.println();
+                continue;
             }
-            System.out.println(v.getNome() + "\nSalário Semanal: " + v.salarioSemanal());
-            if(v instanceof FuncionarioDiarista)
-                ((FuncionarioDiarista) v).setDiasTrabalhados(0);
-        });
+            System.out.println(func.getNome() + "\nSalário Semanal: " + String.format("%.2f",func.salarioSemanal()));
+            System.out.println();
+            if(func instanceof FuncionarioDiarista)
+                ((FuncionarioDiarista) func).setDiasTrabalhados(0);
+        }
     }
 
     public void gerarEscala(Date inicio, Map<Date, String> feriados){
-        DateFormat formatter = new SimpleDateFormat("EEEE", Locale.forLanguageTag("pt"));
+        DateFormat formatter = new SimpleDateFormat("E", Locale.forLanguageTag("pt"));
         Calendar c = Calendar.getInstance();
+        List<Funcionario> listFunc = ordenarFuncionarios();
 
-        funcionarios.forEach((k,v) -> {
+        System.out.println("DOM SEG TER QUA QUI SEX SÁB");
+
+        for (Funcionario func : listFunc) {
 
             c.setTime(inicio);
-            boolean clt = v instanceof FuncionarioClt;
-            boolean pj = v instanceof FuncionarioPj;
-            boolean diarista = v instanceof FuncionarioDiarista;
+            boolean clt = func instanceof FuncionarioClt;
+            boolean pj = func instanceof FuncionarioPj;
+            boolean diarista = func instanceof FuncionarioDiarista;
             boolean feriado;
             boolean facultativo = false;
             String situacao;
             c.add(Calendar.DATE, -1);
-
-            System.out.println(v);
+            Calendar nascimento = Calendar.getInstance();
+            nascimento.setTime(func.getDataNascimento());
 
             for(int i = 0; i < 7; i++){
                 c.add(Calendar.DATE, 1);
                 String dia = formatter.format(c.getTime()).toUpperCase();
-                boolean diaAniversario = c.getTime().compareTo(v.getDataNascimento()) == 0;
+                boolean diaAniversario = c.get(Calendar.DAY_OF_MONTH) == nascimento.get(Calendar.DAY_OF_MONTH)
+                        && c.get(Calendar.MONTH) == nascimento.get(Calendar.MONTH);
                 feriado = feriados.containsKey(c.getTime());
                 if(feriado) facultativo = feriados.get(c.getTime()).equals("Facultativo");
 
                 switch (dia){
-                    case "DOMINGO":
-                    case "SÁBADO":
+                    case "DOM":
+                    case "SÁB":
                         if(clt || pj || diaAniversario) {
-                            situacao = "FOLGA";
-                            System.out.println(dia + ": " + situacao);
+                            situacao = " F ";
+                            if (feriado) situacao = " R ";
+                            if (diaAniversario) situacao = " A ";
+                            setEscala(func, dia, situacao, i);
+
                             if(diarista)
-                                ((FuncionarioDiarista) v).diaria();
+                                ((FuncionarioDiarista) func).diaria();
                             break;
                         }
-                        situacao = "TRABALHA";
-                        System.out.println(dia + ": " + situacao);
-                        ((FuncionarioDiarista) v).diaria();
+                        situacao = " T ";
+                        setEscala(func, dia, situacao, i);
+                        ((FuncionarioDiarista) func).diaria();
                         break;
-                    case "SEGUNDA-FEIRA":
-                    case "TERÇA-FEIRA":
-                    case "QUINTA-FEIRA":
+                    case "SEG":
+                    case "TER":
+                    case "QUI":
                         if(diaAniversario || feriado && !facultativo && !diarista || diarista && !feriado){
-                            situacao = "FOLGA";
-                            System.out.println(dia + ": " + situacao);
+                            situacao = " F ";
+                            if (feriado) situacao = " R ";
+                            if (diaAniversario) situacao = " A ";
+                            setEscala(func, dia, situacao, i);
+                            if (diarista && diaAniversario) ((FuncionarioDiarista) func).diaria();
+                            break;
                         }
                         if (clt || pj || feriado && diarista) {
-                            situacao = "TRABALHA";
-                            System.out.println(dia + ": " + situacao);
-                        }
+                            situacao = " T ";
+                            setEscala(func, dia, situacao, i);
+                            if(diarista)
+                                ((FuncionarioDiarista) func).diaria();
                             break;
-                    case "QUARTA-FEIRA":
+                        }
+                    case "QUA":
                         if(clt || diaAniversario || feriado && !facultativo){
-                            situacao = "FOLGA";
-                            System.out.println(dia + ": " + situacao);
+                            situacao = " F ";
+                            if (feriado) situacao = " R ";
+                            if (diaAniversario) situacao = " A ";
+                            setEscala(func, dia, situacao, i);
                             if(diarista)
-                                ((FuncionarioDiarista) v).diaria();
+                                ((FuncionarioDiarista) func).diaria();
                             break;
                         }
-                        situacao = "TRABALHA";
-                        System.out.println(dia + ": " + situacao);
+                        situacao = " T ";
+                        setEscala(func, dia, situacao, i);
                         if(diarista)
-                            ((FuncionarioDiarista) v).diaria();
+                            ((FuncionarioDiarista) func).diaria();
                         break;
-                    case "SEXTA-FEIRA":
+                    case "SEX":
                         if(pj || diaAniversario || feriado && !facultativo){
-                            situacao = "FOLGA";
-                            System.out.println(dia + ": " + situacao);
+                            situacao = " F ";
+                            if (feriado) situacao = " R ";
+                            if (diaAniversario) situacao = " A ";
+                            setEscala(func, dia, situacao, i);
                             if(diarista)
-                                ((FuncionarioDiarista) v).diaria();
+                                ((FuncionarioDiarista) func).diaria();
                             break;
                         }
-                        situacao = "TRABALHA";
-                        System.out.println(dia + ": " + situacao);
+                        situacao = " T ";
+                        setEscala(func, dia, situacao, i);
                         if(diarista)
-                            ((FuncionarioDiarista) v).diaria();
+                            ((FuncionarioDiarista) func).diaria();
                         break;
                 }
             }
+            for(int i = 0; i < 7; i++){
+                if(i == 6) {
+                    System.out.print(func.getSituacao()[i] + " - " + func.getNome() + "\n");
+                    break;
+                }
+                System.out.print(func.getSituacao()[i] + " ");
+            }
             System.out.println();
-        });
+        }
+        System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
     }
 
-    /*public void imprimirEscala(Date inicio){}
-
-    public List<?> escalaTipo(Class<?> func){
-
+    public void setEscala(Funcionario func, String dia, String situacao, int index){
+        func.getDias()[index] = dia;
+        func.getSituacao()[index] = situacao;
     }
+
+    public void imprimirEscalaFunc(String cpf){
+        Funcionario func = funcionarios.get(cpf);
+        for(int i = 0; i < 7; i++){
+            if(i == 6) {
+                System.out.print(func.getDias()[i] + "\n");
+                break;
+            }
+
+            System.out.print(func.getDias()[i] + " ");
+        }
+        for(int i = 0; i < 7; i++){
+            if(i == 6) {
+                System.out.print(func.getSituacao()[i] + "\n");
+                break;
+            }
+            System.out.print(func.getSituacao()[i] + " ");
+        }
+        System.out.println();
+        System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
+    }
+
+    public void imprimirEscala(){
+        List<Funcionario> listFunc = ordenarFuncionarios();
+
+        System.out.println("DOM SEG TER QUA QUI SEX SÁB");
+
+        for (Funcionario func : listFunc) {
+            for(int i = 0; i < 7; i++){
+                if(i == 6) {
+                    System.out.print(func.getSituacao()[i] + " - " + func.getNome() + "\n");
+                    break;
+                }
+                System.out.print(func.getSituacao()[i] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
+    }
+
+    public void imprimirEscalaTipo(String className){
+        List<Funcionario> listFunc = ordenarFuncionarios();
+
+        System.out.println("DOM SEG TER QUA QUI SEX SÁB");
+
+        for (Funcionario func: listFunc) {
+            if (func.getClass().toString().equals(className)) {
+                for(int i = 0; i < 7; i++){
+                    if(i == 6) {
+                        System.out.print(func.getSituacao()[i] + " - " + func.getNome() + "\n");
+                        break;
+                    }
+                    System.out.print(func.getSituacao()[i] + " ");
+                }
+                System.out.println();
+            }
+        }
+        System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
+    }
+
 
     public void relatorioTotal(char ord){
+        List<Funcionario> ordenado = new ArrayList<>(funcionarios.values());
+        Collections.sort(ordenado, new ComparadorSalario());
 
-    }*/
+        if (ord == 'd'){
+            Collections.reverse(ordenado);
+        }
+
+        double total = 0.0;
+        for (Funcionario f : ordenado){
+            System.out.println(f.getNome() + " - " + "Salário: " + String.format("%.2f", f.salarioSemanal()));
+            total += f.salarioSemanal();
+        }
+
+        System.out.println("\n" + "TOTAL: " + String.format("%.2f", total) + "\n\n");
+    }
+
+    private List<Funcionario> ordenarFuncionarios(){
+        List<Funcionario> ordenado = new ArrayList<>(funcionarios.values());
+        Collections.sort(ordenado, new ComparadorNome());
+        return ordenado;
+    }
 }
