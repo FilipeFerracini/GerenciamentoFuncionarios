@@ -3,7 +3,7 @@ package entities;
 import java.util.Comparator;
 import java.util.Date;
 
-public class FuncionarioDiarista extends Funcionario implements Comparable{
+public class FuncionarioDiarista extends Funcionario{
     private int diasTrabalhados = 0;
     private final double salario = 65.00;
 
@@ -32,16 +32,4 @@ public class FuncionarioDiarista extends Funcionario implements Comparable{
         return diasTrabalhados * salario;
     }
 
-    @Override
-    public String toString() {
-        return getNome() + " - Tipo de Contrato: Diarista";
-    }
-
-    /*@Override
-    public int compareTo(Funcionario func) {
-        return Comparator.comparing(Funcionario::getCpfCnpj)
-                .thenComparing(Funcionario::getNome)
-                .thenComparing(Funcionario::getDataNascimento)
-                .compare(this, func);
-    }*/
 }
