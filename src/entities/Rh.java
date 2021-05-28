@@ -68,12 +68,14 @@ public class Rh {
             for(int i = 0; i < 7; i++){
                 c.add(Calendar.DATE, 1);
                 String dia = formatter.format(c.getTime()).toUpperCase();
+                if(dia.length()>3)
+                    dia=dia.substring(0,3);
                 boolean diaAniversario = c.get(Calendar.DAY_OF_MONTH) == nascimento.get(Calendar.DAY_OF_MONTH)
                         && c.get(Calendar.MONTH) == nascimento.get(Calendar.MONTH);
                 feriado = feriados.containsKey(c.getTime());
                 if(feriado) facultativo = feriados.get(c.getTime()).equals("Facultativo");
 
-                switch (dia){
+                switch (dia.substring(0,3)){
                     case "DOM":
                     case "SÁB":
                         if(clt || pj || diaAniversario) {
