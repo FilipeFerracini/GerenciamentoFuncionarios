@@ -9,6 +9,11 @@ import java.util.*;
 
 public class Rh {
     private Map<String, Funcionario> funcionarios = new HashMap<>();
+    private boolean escalaGerada = false;
+
+    public boolean getEscalaGerada() {
+        return escalaGerada;
+    }
 
     public boolean addFunc(Funcionario func){
         if(funcionarios.containsKey(func.getCpfCnpj()))
@@ -28,7 +33,7 @@ public class Rh {
         return funcionarios.get(func.getCpfCnpj());
     }
 
-    public void pagarFuncionario(){
+    public void pagarFuncionarios(){
         List<Funcionario> listFunc = ordenarFuncionarios();
 
         for (Funcionario func : listFunc) {
@@ -43,6 +48,8 @@ public class Rh {
             if(func instanceof FuncionarioDiarista)
                 ((FuncionarioDiarista) func).setDiasTrabalhados(0);
         }
+
+        escalaGerada = false;
     }
 
     public void gerarEscala(Date inicio, Map<Date, String> feriados){
@@ -75,7 +82,7 @@ public class Rh {
                 feriado = feriados.containsKey(c.getTime());
                 if(feriado) facultativo = feriados.get(c.getTime()).equals("Facultativo");
 
-                switch (dia.substring(0,3)){
+                switch (dia){
                     case "DOM":
                     case "SÁB":
                         if(clt || pj || diaAniversario) {
@@ -151,6 +158,7 @@ public class Rh {
             }
             System.out.println();
         }
+        escalaGerada = true;
         System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
     }
 
@@ -171,7 +179,7 @@ public class Rh {
         }
         for(int i = 0; i < 7; i++){
             if(i == 6) {
-                System.out.print(func.getSituacao()[i] + "\n");
+                System.out.print(func.getSituacao()[i] + " - " + func.getNome() + "\n");
                 break;
             }
             System.out.print(func.getSituacao()[i] + " ");
@@ -219,11 +227,11 @@ public class Rh {
     }
 
 
-    public void relatorioTotal(char ord){
+    public void relatorioTotal(String ordem){
         List<Funcionario> ordenado = new ArrayList<>(funcionarios.values());
         Collections.sort(ordenado, new ComparadorSalario());
 
-        if (ord == 'd'){
+        if (ordem == "decrescente"){
             Collections.reverse(ordenado);
         }
 
