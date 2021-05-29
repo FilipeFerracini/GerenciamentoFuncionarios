@@ -21,4 +21,18 @@ public class FuncionarioClt extends Funcionario {
         return salarioBruto * (1 - (fgts + inss));
     }
 
+    @Override
+    public String toString() {
+        StringBuilder cpf = new StringBuilder(getCpfCnpj())
+                .insert(3, ".")
+                .insert(7, ".")
+                .insert(11, "-");
+
+        return "Nome: " + getNome()
+                + "\nCPF: " + cpf.toString()
+                + "\nData de Nascimento: " + sdf1.format(getDataNascimento())
+                + "\nEndereço: " + getEndereco()
+                + "\nTipo de Contrato: CLT"
+                + "\nSalário: " + String.format("%.2f", salarioSemanal());
+    }
 }
