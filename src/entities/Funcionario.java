@@ -1,8 +1,11 @@
 package entities;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class Funcionario {
+
+    protected final SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 
     private String cpfCnpj;
     private String nome;
@@ -10,15 +13,6 @@ public abstract class Funcionario {
     private String endereco;
     private String[] dias = new String[7];
     private String[] situacao = new String[7];
-    /*private Map<String, String> escala = new LinkedHashMap<>() {{
-        put("DOMINGO", null);
-        put("SEGUNDA-FEIRA", null);
-        put("TERÇA-FEIRA", null);
-        put("QUARTA-FEIRA", null);
-        put("QUINTA-FEIRA", null);
-        put("SEXTA-FEIRA", null);
-        put("SÁBADO", null);
-    }};*/
 
     public Funcionario(String cpfCnpj, String nome, Date dataNascimento, String endereco) {
         this.cpfCnpj = cpfCnpj;

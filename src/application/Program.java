@@ -11,7 +11,7 @@ import java.util.*;
 public class Program {
 
 
-    public static void main(String[] args) throws ParseException, IOException, InterruptedException, ClassNotFoundException {
+    public static void main(String[] args) throws ParseException, IOException, InterruptedException {
 
         SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
         Scanner sc = new Scanner(System.in);
@@ -44,8 +44,10 @@ public class Program {
             System.out.println("(4) Imprimir escala");
             System.out.println("(5) Imprimir relatórios de pagamento em ordem crescente");
             System.out.println("(6) Imprimir relatórios de pagamento em ordem decrescente");
-            System.out.println("(7) Pagar Funcionários");
-            System.out.println("(8) Finalizar Programa");
+            System.out.println("(7) Pagar funcionários");
+            System.out.println("(8) Informações sobre o funcionário");
+            System.out.println("(9) Remover funcionário");
+            System.out.println("(10) Finalizar Programa");
             System.out.print("Digite um número: ");
 
             if (sc.hasNextInt()) {
@@ -81,6 +83,24 @@ public class Program {
                     sc.nextLine();
                     break;
                 case(8):
+                    System.out.println("\nDigite o CPF ou CNPJ do funcionário: ");
+                    String cpfCnpj = sc.nextLine().replaceAll("\\W", "");
+                    rh.infoFunc(rh.buscaFunc(cpfCnpj));
+                    System.out.println("\nTecle ENTER para voltar ao menu principal");
+                    sc.nextLine();
+                    break;
+                case(9):
+                    System.out.println("\nDigite o CPF ou CNPJ do funcionário: ");
+                    cpfCnpj = sc.nextLine().replaceAll("\\W", "");
+                    if (rh.removeFunc(rh.buscaFunc(cpfCnpj)) == true)
+                        System.out.println("Funcionário removido");
+                    else
+                        System.err.println("Funcionário não encontrado");
+
+                    System.out.println("\nTecle ENTER para voltar ao menu principal");
+                    sc.nextLine();
+                    break;
+                case(10):
                     break loop;
             }
 
@@ -94,7 +114,7 @@ public class Program {
 
         System.out.println("Digite os dados do novo funcionário:");
         System.out.print("CPF ou CNPJ: ");
-        String cpfCnpj = input.nextLine();
+        String cpfCnpj = input.nextLine().replaceAll("\\W", "");
         System.out.print("Nome: ");
         String nome = input.nextLine();
         System.out.print("Data de nascimento (DD/MM/AAAA): ");
@@ -137,7 +157,8 @@ public class Program {
                 sc.nextLine();
 
                 rh.gerarEscala(dataEscala, calendario.getFeriados());
-                System.out.println("\nTecle ENTER para voltar ao menu principal");
+                System.out.println("\nAgora você terá mais opções de escalas para serem impressas!");
+                System.out.println("Tecle ENTER para voltar ao menu principal");
                 sc.nextLine();
             }
             return;

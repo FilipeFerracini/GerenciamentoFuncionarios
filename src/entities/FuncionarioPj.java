@@ -18,4 +18,20 @@ public class FuncionarioPj extends Funcionario{
     public double salarioSemanal() {
         return salario;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder cnpj = new StringBuilder(getCpfCnpj())
+                .insert(2, ".")
+                .insert(6, ".")
+                .insert(10, "/")
+                .insert(15, "-");
+
+        return "Nome: " + getNome()
+                + "\nCPF: " + cnpj.toString()
+                + "\nData de Nascimento: " + sdf1.format(getDataNascimento())
+                + "\nEndereço: " + getEndereco()
+                + "\nTipo de Contrato: PJ"
+                + "\nSalário: " + String.format("%.2f", salarioSemanal());
+    }
 }

@@ -23,14 +23,26 @@ public class Rh {
     }
 
     public boolean removeFunc(Funcionario func){
-        if(!funcionarios.containsKey(func.getCpfCnpj()))
+        try {
+            if(!funcionarios.containsKey(func.getCpfCnpj()))
+                return false;
+            funcionarios.remove(func.getCpfCnpj());
+            return true;
+        } catch (NullPointerException e) {
             return false;
-        funcionarios.remove(func.getCpfCnpj());
-        return true;
+        }
     }
 
-    public Funcionario buscaFunc(Funcionario func){
-        return funcionarios.get(func.getCpfCnpj());
+    public Funcionario buscaFunc(String cpfCnpj){
+        return funcionarios.get(cpfCnpj);
+    }
+
+    public void infoFunc(Funcionario func){
+        if (func == null) {
+            System.err.println("Funcionário não encontrado");
+            return;
+        }
+        System.out.println(funcionarios.get(func.getCpfCnpj()));
     }
 
     public void pagarFuncionarios(){
