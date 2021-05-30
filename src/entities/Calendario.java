@@ -91,6 +91,5 @@ public class Calendario {
         }
 
         return feriados;
-        //feriados.forEach((k,v) -> System.out.println(sdf1.format(k) + " - " + v));
     }
 }

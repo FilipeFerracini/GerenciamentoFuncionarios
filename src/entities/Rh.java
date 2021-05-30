@@ -9,6 +9,8 @@ import java.util.*;
 
 public class Rh {
     private Map<String, Funcionario> funcionarios = new HashMap<>();
+    private Map<Date, String> cacheFeriados;
+    private Date cacheInicioEscala;
     private boolean escalaGerada = false;
 
     public boolean getEscalaGerada() {
@@ -19,6 +21,9 @@ public class Rh {
         if(funcionarios.containsKey(func.getCpfCnpj()))
             return false;
         funcionarios.put(func.getCpfCnpj(), func);
+        if (escalaGerada){
+            gerarEscalaFuncionario(func);
+        }
         return true;
     }
 
@@ -62,105 +67,20 @@ public class Rh {
         }
 
         escalaGerada = false;
+        cacheFeriados.clear();
     }
 
     public void gerarEscala(Date inicio, Map<Date, String> feriados){
-        DateFormat formatter = new SimpleDateFormat("E", Locale.forLanguageTag("pt"));
-        Calendar c = Calendar.getInstance();
+        cacheFeriados = new HashMap<>(feriados);
+        cacheInicioEscala = inicio;
         List<Funcionario> listFunc = ordenarFuncionarios();
 
         System.out.println("DOM SEG TER QUA QUI SEX SÁB");
 
         for (Funcionario func : listFunc) {
 
-            c.setTime(inicio);
-            boolean clt = func instanceof FuncionarioClt;
-            boolean pj = func instanceof FuncionarioPj;
-            boolean diarista = func instanceof FuncionarioDiarista;
-            boolean feriado;
-            boolean facultativo = false;
-            String situacao;
-            c.add(Calendar.DATE, -1);
-            Calendar nascimento = Calendar.getInstance();
-            nascimento.setTime(func.getDataNascimento());
+            gerarEscalaFuncionario(func);
 
-            for(int i = 0; i < 7; i++){
-                c.add(Calendar.DATE, 1);
-                String dia = formatter.format(c.getTime()).toUpperCase();
-                if(dia.length()>3)
-                    dia=dia.substring(0,3);
-                boolean diaAniversario = c.get(Calendar.DAY_OF_MONTH) == nascimento.get(Calendar.DAY_OF_MONTH)
-                        && c.get(Calendar.MONTH) == nascimento.get(Calendar.MONTH);
-                feriado = feriados.containsKey(c.getTime());
-                if(feriado) facultativo = feriados.get(c.getTime()).equals("Facultativo");
-
-                switch (dia){
-                    case "DOM":
-                    case "SÁB":
-                        if(clt || pj || diaAniversario) {
-                            situacao = " F ";
-                            if (feriado) situacao = " R ";
-                            if (diaAniversario) situacao = " A ";
-                            setEscala(func, dia, situacao, i);
-
-                            if(diarista)
-                                ((FuncionarioDiarista) func).diaria();
-                            break;
-                        }
-                        situacao = " T ";
-                        setEscala(func, dia, situacao, i);
-                        ((FuncionarioDiarista) func).diaria();
-                        break;
-                    case "SEG":
-                    case "TER":
-                    case "QUI":
-                        if(diaAniversario || feriado && !facultativo && !diarista || diarista && !feriado){
-                            situacao = " F ";
-                            if (feriado) situacao = " R ";
-                            if (diaAniversario) situacao = " A ";
-                            setEscala(func, dia, situacao, i);
-                            if (diarista && diaAniversario) ((FuncionarioDiarista) func).diaria();
-                            break;
-                        }
-                        if (clt || pj || feriado && diarista) {
-                            situacao = " T ";
-                            setEscala(func, dia, situacao, i);
-                            if(diarista)
-                                ((FuncionarioDiarista) func).diaria();
-                            break;
-                        }
-                    case "QUA":
-                        if(clt || diaAniversario || feriado && !facultativo){
-                            situacao = " F ";
-                            if (feriado) situacao = " R ";
-                            if (diaAniversario) situacao = " A ";
-                            setEscala(func, dia, situacao, i);
-                            if(diarista)
-                                ((FuncionarioDiarista) func).diaria();
-                            break;
-                        }
-                        situacao = " T ";
-                        setEscala(func, dia, situacao, i);
-                        if(diarista)
-                            ((FuncionarioDiarista) func).diaria();
-                        break;
-                    case "SEX":
-                        if(pj || diaAniversario || feriado && !facultativo){
-                            situacao = " F ";
-                            if (feriado) situacao = " R ";
-                            if (diaAniversario) situacao = " A ";
-                            setEscala(func, dia, situacao, i);
-                            if(diarista)
-                                ((FuncionarioDiarista) func).diaria();
-                            break;
-                        }
-                        situacao = " T ";
-                        setEscala(func, dia, situacao, i);
-                        if(diarista)
-                            ((FuncionarioDiarista) func).diaria();
-                        break;
-                }
-            }
             for(int i = 0; i < 7; i++){
                 if(i == 6) {
                     System.out.print(func.getSituacao()[i] + " - " + func.getNome() + "\n");
@@ -172,6 +92,100 @@ public class Rh {
         }
         escalaGerada = true;
         System.out.println("F - Folga, T - Trabalha, A - Aniversário(Folga), R - Recesso(Feriado)\n");
+    }
+
+    public void gerarEscalaFuncionario(Funcionario func){
+        DateFormat formatter = new SimpleDateFormat("E", Locale.forLanguageTag("pt"));
+        Calendar c = Calendar.getInstance();
+
+        c.setTime(cacheInicioEscala);
+        boolean clt = func instanceof FuncionarioClt;
+        boolean pj = func instanceof FuncionarioPj;
+        boolean diarista = func instanceof FuncionarioDiarista;
+        boolean feriado;
+        boolean facultativo = false;
+        String situacao;
+        c.add(Calendar.DATE, -1);
+        Calendar nascimento = Calendar.getInstance();
+        nascimento.setTime(func.getDataNascimento());
+
+        for(int i = 0; i < 7; i++){
+            c.add(Calendar.DATE, 1);
+            String dia = formatter.format(c.getTime()).toUpperCase();
+            if(dia.length()>3)
+                dia=dia.substring(0,3);
+            boolean diaAniversario = c.get(Calendar.DAY_OF_MONTH) == nascimento.get(Calendar.DAY_OF_MONTH)
+                    && c.get(Calendar.MONTH) == nascimento.get(Calendar.MONTH);
+            feriado = cacheFeriados.containsKey(c.getTime());
+            if(feriado) facultativo = cacheFeriados.get(c.getTime()).equals("Facultativo");
+
+            switch (dia){
+                case "DOM":
+                case "SÁB":
+                    if(clt || pj || diaAniversario) {
+                        situacao = " F ";
+                        if (feriado) situacao = " R ";
+                        if (diaAniversario) situacao = " A ";
+                        setEscala(func, dia, situacao, i);
+
+                        if(diarista)
+                            ((FuncionarioDiarista) func).diaria();
+                        break;
+                    }
+                    situacao = " T ";
+                    setEscala(func, dia, situacao, i);
+                    ((FuncionarioDiarista) func).diaria();
+                    break;
+                case "SEG":
+                case "TER":
+                case "QUI":
+                    if(diaAniversario || feriado && !facultativo && !diarista || diarista && !feriado){
+                        situacao = " F ";
+                        if (feriado) situacao = " R ";
+                        if (diaAniversario) situacao = " A ";
+                        setEscala(func, dia, situacao, i);
+                        if (diarista && diaAniversario) ((FuncionarioDiarista) func).diaria();
+                        break;
+                    }
+                    if (clt || pj || feriado && diarista) {
+                        situacao = " T ";
+                        setEscala(func, dia, situacao, i);
+                        if(diarista)
+                            ((FuncionarioDiarista) func).diaria();
+                        break;
+                    }
+                case "QUA":
+                    if(clt || diaAniversario || feriado && !facultativo){
+                        situacao = " F ";
+                        if (feriado) situacao = " R ";
+                        if (diaAniversario) situacao = " A ";
+                        setEscala(func, dia, situacao, i);
+                        if(diarista)
+                            ((FuncionarioDiarista) func).diaria();
+                        break;
+                    }
+                    situacao = " T ";
+                    setEscala(func, dia, situacao, i);
+                    if(diarista)
+                        ((FuncionarioDiarista) func).diaria();
+                    break;
+                case "SEX":
+                    if(pj || diaAniversario || feriado && !facultativo){
+                        situacao = " F ";
+                        if (feriado) situacao = " R ";
+                        if (diaAniversario) situacao = " A ";
+                        setEscala(func, dia, situacao, i);
+                        if(diarista)
+                            ((FuncionarioDiarista) func).diaria();
+                        break;
+                    }
+                    situacao = " T ";
+                    setEscala(func, dia, situacao, i);
+                    if(diarista)
+                        ((FuncionarioDiarista) func).diaria();
+                    break;
+            }
+        }
     }
 
     public void setEscala(Funcionario func, String dia, String situacao, int index){
