@@ -101,6 +101,11 @@ public class Program {
                     sc.nextLine();
                     break;
                 case(10):
+                    System.out.println("Obrigado por utilizar o software de gereciamento de funcionários Gerex. Desenvolvimento: ");
+                    System.out.println("Danilo dos Santos de Oliveira - 2020.1907.045-3");
+                    System.out.println("Filipe Matos Ferracini - 2020.1907.045-3");
+                    System.out.println("Gustavo Bezerra da Silva - 2020.1907.065-8");
+                    System.out.println("Vitoria Pereira Rocha - 2020.1907.015-1");
                     break loop;
             }
 
